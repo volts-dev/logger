@@ -366,6 +366,10 @@ func (self *TLogger) Info(format string, v ...interface{}) {
 	self.manager.write(LevelInfo, msg)
 }
 
+func (self *TLogger) Panic(format string, args ...interface{}) {
+	panic(fmt.Sprintf(format, args...))
+}
+
 // Log WARNING level message.
 func (self *TLogger) Warn(format string, v ...interface{}) {
 	msg := fmt.Sprintf("Warn: "+format, v...)
