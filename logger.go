@@ -57,6 +57,7 @@ type (
 
 	ILogger interface {
 	}
+
 	// Supply API to user
 	TLogger struct {
 		manager *TWriterManager
@@ -76,43 +77,44 @@ func Assert(cnd bool, format string, args ...interface{}) {
 }
 
 func Atkf(fmt string, arg ...interface{}) {
-	Logger.Atk(fmt, arg...)
+	Logger.Atkf(fmt, arg...)
 }
 
 func Info(err ...interface{}) {
-	Logger.InfoLn(err)
+	Logger.Info(err...)
 }
 
 func Infof(fmt string, arg ...interface{}) {
-	Logger.Info(fmt, arg...)
+	Logger.Infof(fmt, arg...)
 }
 
 func Warn(err ...interface{}) {
-	Logger.WarnLn(err)
+	Logger.Warn(err...)
 }
 
 func Warnf(fmt string, arg ...interface{}) {
-	Logger.Warn(fmt, arg...)
+	Logger.Warnf(fmt, arg...)
 }
 
 func Dbg(err ...interface{}) {
-	Logger.DbgLn(err)
+	Logger.Dbg(err...)
 }
 
 func Err(err ...interface{}) {
-	Logger.ErrLn(err)
-}
-func Errf(fmt string, arg ...interface{}) {
-	Logger.Err(fmt, arg...)
+	Logger.Err(err...)
 }
 
-func Panic(format string, args ...interface{}) {
+func Errf(fmt string, arg ...interface{}) {
+	Logger.Errf(fmt, arg...)
+}
+
+func Panicf(format string, args ...interface{}) {
 	panic(fmt.Sprintf(format, args...))
 }
 
 func PanicErr(err error, title ...string) bool {
 	if err != nil {
-		Logger.DbgLn(err)
+		Logger.Dbg(err)
 		panic(err)
 		//panic("[" + title[0] + "] " + err.Error())
 		return true
@@ -147,6 +149,7 @@ func Register(aName string, aWriterCreater IWriterType) {
 	}
 	creaters[aName] = aWriterCreater
 }
+
 func (self *TWriterManager) writeDown(msg string, level int) {
 	for name, wt := range self.writer {
 		err := wt.Write(level, msg)
@@ -304,7 +307,7 @@ func (self *TLogger) RemoveWriter(aName string) error {
 	return nil
 }
 
-func (self *TLogger) Level() int {
+func (self *TLogger) GetLevel() int {
 	return self.manager.config.Level
 }
 
@@ -361,66 +364,66 @@ func (self *TLogger) Critical(format string, v ...interface{}) {
 */
 
 // Log INFORMATIONAL level message.
-func (self *TLogger) Info(format string, v ...interface{}) {
+func (self *TLogger) Infof(format string, v ...interface{}) {
 	msg := fmt.Sprintf("Info: "+format, v...)
 	self.manager.write(LevelInfo, msg)
 }
 
-func (self *TLogger) Panic(format string, args ...interface{}) {
+func (self *TLogger) Panicf(format string, args ...interface{}) {
 	panic(fmt.Sprintf(format, args...))
 }
 
 // Log WARNING level message.
-func (self *TLogger) Warn(format string, v ...interface{}) {
+func (self *TLogger) Warnf(format string, v ...interface{}) {
 	msg := fmt.Sprintf("Warn: "+format, v...)
 	self.manager.write(LevelWarn, msg)
 }
 
 // Log ERROR level message.
-func (self *TLogger) Err(format string, v ...interface{}) error {
+func (self *TLogger) Errf(format string, v ...interface{}) error {
 	msg := fmt.Errorf("Err: "+format, v...)
 	self.manager.write(LevelError, msg.Error())
 	return msg
 }
 
 // Log DEBUG level message.
-func (self *TLogger) Dbg(format string, v ...interface{}) {
+func (self *TLogger) Dbgf(format string, v ...interface{}) {
 	msg := fmt.Sprintf("Dbg: "+format, v...)
 	self.manager.write(LevelDebug, msg)
 }
 
 // Log Attack level message.
-func (self *TLogger) Atk(format string, v ...interface{}) {
+func (self *TLogger) Atkf(format string, v ...interface{}) {
 	msg := fmt.Sprintf("Atk: "+format, v...)
 	self.manager.write(LevelAttack, msg)
 }
 
 // Log INFORMATIONAL level message.
-func (self *TLogger) InfoLn(v ...interface{}) {
+func (self *TLogger) Info(v ...interface{}) {
 	msg := fmt.Sprint(v...)
 	self.manager.write(LevelInfo, "[I] "+msg)
 }
 
 // Log WARNING level message.
-func (self *TLogger) WarnLn(v ...interface{}) {
+func (self *TLogger) Warn(v ...interface{}) {
 	msg := fmt.Sprint(v...)
 	self.manager.write(LevelWarn, "[W] "+msg)
 }
 
 // Log ERROR level message.
-func (self *TLogger) ErrLn(v ...interface{}) {
+func (self *TLogger) Err(v ...interface{}) {
 	msg := fmt.Sprint(v...)
 	self.manager.write(LevelError, "[E] "+msg)
 }
 
 // Log DEBUG level message.
-func (self *TLogger) DbgLn(v ...interface{}) {
+func (self *TLogger) Dbg(v ...interface{}) {
 	msg := fmt.Sprint(v...)
 	self.manager.write(LevelDebug, "[D] "+msg)
 }
 
 // Log Attack level message.
-func (self *TLogger) AtkLn(v ...interface{}) {
+func (self *TLogger) Atk(v ...interface{}) {
 	msg := fmt.Sprint(v...)
 	self.manager.write(LevelAttack, "[D] "+msg)
 }
