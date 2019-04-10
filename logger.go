@@ -235,7 +235,7 @@ func (self *TWriterManager) listen() {
 func NewLogger(config string) *TLogger {
 	lConfig := new(TConfig)
 	lConfig.Level = LevelDebug
-	lConfig.Prefix = ""
+	lConfig.Prefix = "LOG"
 
 	if config != "" { // 空字符串会导致错误
 		err := json.Unmarshal([]byte(config), lConfig)
