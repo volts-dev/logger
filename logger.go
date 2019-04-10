@@ -56,6 +56,22 @@ type (
 	}
 
 	ILogger interface {
+		GetLevel() int
+		SetLevel(l int)
+
+		Panicf(format string, v ...interface{})
+		Dbgf(format string, v ...interface{})
+		Atkf(format string, v ...interface{})
+		Errf(format string, v ...interface{}) error
+		Warnf(format string, v ...interface{})
+		Infof(format string, v ...interface{})
+
+		//Panic(v ...interface{})
+		Dbg(v ...interface{})
+		Atk(v ...interface{})
+		Err(v ...interface{})
+		Warn(v ...interface{})
+		Info(v ...interface{})
 	}
 
 	// Supply API to user
