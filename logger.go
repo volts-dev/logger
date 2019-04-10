@@ -155,15 +155,15 @@ func LogErr(err error, title ...string) bool {
 // Register makes a log provide available by the provided name.
 // If Register is called twice with the same name or if driver is nil,
 // it panics.
-func Register(aName string, aWriterCreater IWriterType) {
-	aName = strings.ToLower(aName)
+func Register(name string, aWriterCreater IWriterType) {
+	name = strings.ToLower(name)
 	if aWriterCreater == nil {
 		panic("logs: Register provide is nil")
 	}
-	if _, dup := creaters[aName]; dup {
-		panic("logs: Register called twice for provider " + aName)
+	if _, dup := creaters[name]; dup {
+		panic("logs: Register called twice for provider " + name)
 	}
-	creaters[aName] = aWriterCreater
+	creaters[name] = aWriterCreater
 }
 
 func (self *TWriterManager) writeDown(msg string, level int) {
@@ -174,8 +174,8 @@ func (self *TWriterManager) writeDown(msg string, level int) {
 		}
 	}
 }
-func (self *TWriterManager) write(aLevel int, aMsg string) error {
-	if aLevel > self.config.Level {
+func (self *TWriterManager) write(level int, msg string) error {
+	if level > self.config.Level {
 		return nil
 	}
 
@@ -183,19 +183,21 @@ func (self *TWriterManager) write(aLevel int, aMsg string) error {
 		_, file, line, ok := runtime.Caller(self.loggerFuncCallDepth)
 		if ok {
 			_, filename := path.Split(file)
-			aMsg = fmt.Sprintf("[%s:%d] %s", filename, line, aMsg)
+			msg = fmt.Sprintf("[%s:%d] %s", filename, line, msg)
 		}
 	}
 
+	msg = "[" + self.config.Prefix + "]" + msg
+
 	// 异步执行
 	if self.asynchronous {
-		lWM := self.msgPool.Get().(*TWriterMsg)
-		lWM.level = aLevel
-		lWM.msg = aMsg
-		self.msg <- lWM
+		wm := self.msgPool.Get().(*TWriterMsg)
+		wm.level = level
+		wm.msg = msg
+		self.msg <- wm
 	} else {
 
-		self.writeDown(aMsg, aLevel)
+		self.writeDown(msg, level)
 	}
 	return nil
 }
@@ -230,13 +232,13 @@ func (self *TWriterManager) listen() {
 	}
 }
 
-func NewLogger(aConfig string) *TLogger {
+func NewLogger(config string) *TLogger {
 	lConfig := new(TConfig)
 	lConfig.Level = LevelDebug
-	lConfig.Prefix = "vectors"
+	lConfig.Prefix = ""
 
-	if aConfig != "" { // 空字符串会导致错误
-		err := json.Unmarshal([]byte(aConfig), lConfig)
+	if config != "" { // 空字符串会导致错误
+		err := json.Unmarshal([]byte(config), lConfig)
 		if err != nil {
 			fmt.Println("NewMemorySession Unmarshal", err, lConfig)
 			return nil
@@ -278,28 +280,28 @@ func (self *TLogger) Response(hd *web.THandler) {
 */
 // SetLogger provides a given logger creater into Logger with config string.
 // config need to be correct JSON as string: {"interval":360}.
-func (self *TLogger) SetWriter(aName string, aConfig string) error {
+func (self *TLogger) SetWriter(name string, config string) error {
 	var wt IWriter
 	var has bool
-	aName = strings.ToLower(aName)
+	name = strings.ToLower(name)
 	self.manager.lock.Lock()
 	defer self.manager.lock.Unlock()
 
-	if wt, has = self.manager.writer[aName]; !has {
-		if creater, has := creaters[aName]; has {
+	if wt, has = self.manager.writer[name]; !has {
+		if creater, has := creaters[name]; has {
 			wt = creater()
 		} else {
-			return fmt.Errorf("Logger.SetLogger: unknown creater %q (forgotten Register?)", aName)
+			return fmt.Errorf("Logger.SetLogger: unknown creater %q (forgotten Register?)", name)
 		}
 	}
 
-	err := wt.Init(aConfig)
+	err := wt.Init(config)
 	if err != nil {
 		fmt.Println("Logger.SetLogger: " + err.Error())
 		return err
 	}
-	self.manager.writer[aName] = wt
-	self.manager.writerName = aName
+	self.manager.writer[name] = wt
+	self.manager.writerName = name
 	return nil
 }
 
@@ -311,12 +313,12 @@ func (self *TLogger) SetLevelWriter(level int, writer IWriter) {
 }
 
 // remove a logger adapter in BeeLogger.
-func (self *TLogger) RemoveWriter(aName string) error {
+func (self *TLogger) RemoveWriter(name string) error {
 	self.manager.lock.Lock()
 	defer self.manager.lock.Unlock()
-	if wt, has := self.manager.writer[aName]; has {
+	if wt, has := self.manager.writer[name]; has {
 		wt.Destroy()
-		delete(self.manager.writer, aName)
+		delete(self.manager.writer, name)
 	} else {
 		return fmt.Errorf("Logger.RemoveWriter: unknown writer %q (forgotten Register?)", self)
 	}
@@ -327,8 +329,8 @@ func (self *TLogger) GetLevel() int {
 	return self.manager.config.Level
 }
 
-func (self *TLogger) SetLevel(aLevel int) {
-	self.manager.config.Level = aLevel
+func (self *TLogger) SetLevel(level int) {
+	self.manager.config.Level = level
 }
 
 // Async set the log to asynchronous and start the goroutine
