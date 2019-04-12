@@ -59,6 +59,8 @@ type (
 		GetLevel() int
 		SetLevel(l int)
 
+		Assert(cnd bool, format string, args ...interface{})
+
 		Panicf(format string, v ...interface{})
 		Dbgf(format string, v ...interface{})
 		Atkf(format string, v ...interface{})
@@ -347,6 +349,13 @@ func (self *TLogger) Async(aSwitch ...bool) *TLogger {
 	}
 
 	return self
+}
+
+// 断言如果结果和条件不一致就错误
+func (self *TLogger) Assert(cnd bool, format string, args ...interface{}) {
+	if !cnd {
+		panic(fmt.Sprintf(format, args...))
+	}
 }
 
 // enable log funcCallDepth
