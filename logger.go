@@ -402,57 +402,57 @@ func (self *TLogger) Panicf(format string, args ...interface{}) {
 
 // Log WARNING level message.
 func (self *TLogger) Warnf(format string, v ...interface{}) {
-	msg := fmt.Sprintf("Warn: "+format, v...)
+	msg := fmt.Sprintf("[WARM]: "+format, v...)
 	self.manager.write(LevelWarn, msg)
 }
 
 // Log ERROR level message.
 func (self *TLogger) Errf(format string, v ...interface{}) error {
-	msg := fmt.Errorf("Err: "+format, v...)
+	msg := fmt.Errorf("[ERR]: "+format, v...)
 	self.manager.write(LevelError, msg.Error())
 	return msg
 }
 
 // Log DEBUG level message.
 func (self *TLogger) Dbgf(format string, v ...interface{}) {
-	msg := fmt.Sprintf("Dbg: "+format, v...)
+	msg := fmt.Sprintf("[DBG]: "+format, v...)
 	self.manager.write(LevelDebug, msg)
 }
 
 // Log Attack level message.
 func (self *TLogger) Atkf(format string, v ...interface{}) {
-	msg := fmt.Sprintf("Atk: "+format, v...)
+	msg := fmt.Sprintf("[ATK]: "+format, v...)
 	self.manager.write(LevelAttack, msg)
 }
 
 // Log INFORMATIONAL level message.
 func (self *TLogger) Info(v ...interface{}) {
 	msg := fmt.Sprint(v...)
-	self.manager.write(LevelInfo, "[I] "+msg)
+	self.manager.write(LevelInfo, "[INFO] "+msg)
 }
 
 // Log WARNING level message.
 func (self *TLogger) Warn(v ...interface{}) {
 	msg := fmt.Sprint(v...)
-	self.manager.write(LevelWarn, "[W] "+msg)
+	self.manager.write(LevelWarn, "[WARM] "+msg)
 }
 
 // Log ERROR level message.
 func (self *TLogger) Err(v ...interface{}) {
 	msg := fmt.Sprint(v...)
-	self.manager.write(LevelError, "[E] "+msg)
+	self.manager.write(LevelError, "[ERR] "+msg)
 }
 
 // Log DEBUG level message.
 func (self *TLogger) Dbg(v ...interface{}) {
 	msg := fmt.Sprint(v...)
-	self.manager.write(LevelDebug, "[D] "+msg)
+	self.manager.write(LevelDebug, "[DBG] "+msg)
 }
 
 // Log Attack level message.
 func (self *TLogger) Atk(v ...interface{}) {
 	msg := fmt.Sprint(v...)
-	self.manager.write(LevelAttack, "[D] "+msg)
+	self.manager.write(LevelAttack, "[ATK] "+msg)
 }
 
 /*
