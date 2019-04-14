@@ -392,7 +392,7 @@ func (self *TLogger) Critical(format string, v ...interface{}) {
 
 // Log INFORMATIONAL level message.
 func (self *TLogger) Infof(format string, v ...interface{}) {
-	msg := fmt.Sprintf("Info: "+format, v...)
+	msg := fmt.Sprintf("[Info]: "+format, v...)
 	self.manager.write(LevelInfo, msg)
 }
 
