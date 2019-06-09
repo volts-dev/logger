@@ -198,9 +198,9 @@ func (self *TWriterManager) write(level int, msg string) error {
 		wm.msg = msg
 		self.msg <- wm
 	} else {
-
 		self.writeDown(msg, level)
 	}
+
 	return nil
 }
 
