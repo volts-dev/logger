@@ -83,7 +83,7 @@ type (
 )
 
 var (
-	creaters = make(map[string]IWriterType) // 注册的Writer类型函数接口
+	creators = make(map[string]IWriterType) // 注册的Writer类型函数接口
 	Logger   = NewLogger("")
 )
 
@@ -162,10 +162,10 @@ func Register(name string, aWriterCreater IWriterType) {
 	if aWriterCreater == nil {
 		panic("logs: Register provide is nil")
 	}
-	if _, dup := creaters[name]; dup {
+	if _, dup := creators[name]; dup {
 		panic("logs: Register called twice for provider " + name)
 	}
-	creaters[name] = aWriterCreater
+	creators[name] = aWriterCreater
 }
 
 func (self *TWriterManager) writeDown(msg string, level int) {
@@ -290,7 +290,7 @@ func (self *TLogger) SetWriter(name string, config string) error {
 	defer self.manager.lock.Unlock()
 
 	if wt, has = self.manager.writer[name]; !has {
-		if creater, has := creaters[name]; has {
+		if creater, has := creators[name]; has {
 			wt = creater()
 		} else {
 			return fmt.Errorf("Logger.SetLogger: unknown creater %q (forgotten Register?)", name)
