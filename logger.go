@@ -3,6 +3,7 @@ package logger
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -438,9 +439,10 @@ func (self *TLogger) Warn(v ...interface{}) {
 }
 
 // Log ERROR level message.
-func (self *TLogger) Err(v ...interface{}) {
+func (self *TLogger) Err(v ...interface{}) error {
 	msg := fmt.Sprint(v...)
 	self.manager.write(LevelError, "[ERR] "+msg)
+	return errors.New(msg)
 }
 
 // Log DEBUG level message.
