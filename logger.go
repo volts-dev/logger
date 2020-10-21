@@ -72,7 +72,7 @@ type (
 		//Panic(v ...interface{})
 		Dbg(v ...interface{})
 		Atk(v ...interface{})
-		Err(v ...interface{})
+		Err(v ...interface{}) error
 		Warn(v ...interface{})
 		Info(v ...interface{})
 	}
