@@ -118,12 +118,12 @@ func Dbg(err ...interface{}) {
 	Logger.Dbg(err...)
 }
 
-func Err(err ...interface{}) {
-	Logger.Err(err...)
+func Err(err ...interface{}) error {
+	return Logger.Err(err...)
 }
 
-func Errf(fmt string, arg ...interface{}) {
-	Logger.Errf(fmt, arg...)
+func Errf(fmt string, arg ...interface{}) error {
+	return Logger.Errf(fmt, arg...)
 }
 
 func Panicf(format string, args ...interface{}) {
