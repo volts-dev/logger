@@ -136,7 +136,6 @@ func PanicErr(err error, title ...string) bool {
 		Logger.Dbg(err)
 		panic(err)
 		//panic("[" + title[0] + "] " + err.Error())
-		return true
 	}
 	return false
 }
@@ -323,7 +322,7 @@ func (self *TLogger) RemoveWriter(name string) error {
 		wt.Destroy()
 		delete(self.manager.writer, name)
 	} else {
-		return fmt.Errorf("Logger.RemoveWriter: unknown writer %q (forgotten Register?)", self)
+		return fmt.Errorf("Logger.RemoveWriter: unknown writer %v (forgotten Register?)", self)
 	}
 	return nil
 }
