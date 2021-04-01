@@ -14,7 +14,7 @@ import (
 
 type (
 	TConfig struct {
-		Level  int    `json:"Level"`
+		Level  Level  `json:"Level"`
 		Prefix string `json:"Prefix"`
 	}
 
@@ -22,14 +22,14 @@ type (
 		Init(config string) error
 		Destroy()
 		//Flush()
-		Write(level int, msg string) error
+		Write(level Level, msg string) error
 	}
 
 	// 创建新Writer类型函数接口
 	IWriterType func() IWriter
 
 	TWriterMsg struct {
-		level int
+		level Level
 		msg   string
 	}
 
@@ -39,7 +39,7 @@ type (
 		flag int // properties
 		//level      int
 		writer       map[string]IWriter // destination for output
-		level_writer map[int]IWriter    // destination for output
+		level_writer map[Level]IWriter  // destination for output
 		config       *TConfig
 		writerName   string       // 现在使用的Writer
 		buf          bytes.Buffer // for accumulating text to write
@@ -57,8 +57,8 @@ type (
 	}
 
 	ILogger interface {
-		GetLevel() int
-		SetLevel(l int)
+		GetLevel() Level
+		SetLevel(l Level)
 
 		Assert(cnd bool, format string, args ...interface{})
 
@@ -95,6 +95,14 @@ func Assert(cnd bool, format string, args ...interface{}) {
 	}
 }
 
+// Returns true if the given level is at or lower the current logger level
+func Lvl(level Level, log ...ILogger) bool {
+	var l ILogger = Logger
+	if len(log) > 0 {
+		l = log[0]
+	}
+	return l.GetLevel() <= level
+}
 func Atkf(fmt string, arg ...interface{}) {
 	Logger.Atkf(fmt, arg...)
 }
@@ -168,7 +176,7 @@ func Register(name string, aWriterCreater IWriterType) {
 	creators[name] = aWriterCreater
 }
 
-func (self *TWriterManager) writeDown(msg string, level int) {
+func (self *TWriterManager) writeDown(msg string, level Level) {
 	for name, wt := range self.writer {
 		err := wt.Write(level, msg)
 		if err != nil {
@@ -176,7 +184,7 @@ func (self *TWriterManager) writeDown(msg string, level int) {
 		}
 	}
 }
-func (self *TWriterManager) write(level int, msg string) error {
+func (self *TWriterManager) write(level Level, msg string) error {
 	if level > self.config.Level {
 		return nil
 	}
@@ -249,7 +257,7 @@ func NewLogger(config string) *TLogger {
 	lLogger := &TLogger{}
 	lLogger.manager = &TWriterManager{
 		writer:              make(map[string]IWriter),
-		level_writer:        make(map[int]IWriter),
+		level_writer:        make(map[Level]IWriter),
 		config:              lConfig,
 		msg:                 make(chan *TWriterMsg, 10000), //10000 means the number of messages in chan.
 		loggerFuncCallDepth: 2,
@@ -308,7 +316,7 @@ func (self *TLogger) SetWriter(name string, config string) error {
 }
 
 // 设置不同等级使用不同警报方式
-func (self *TLogger) SetLevelWriter(level int, writer IWriter) {
+func (self *TLogger) SetLevelWriter(level Level, writer IWriter) {
 	if level > -1 && writer != nil {
 		self.manager.level_writer[level] = writer
 	}
@@ -327,11 +335,11 @@ func (self *TLogger) RemoveWriter(name string) error {
 	return nil
 }
 
-func (self *TLogger) GetLevel() int {
+func (self *TLogger) GetLevel() Level {
 	return self.manager.config.Level
 }
 
-func (self *TLogger) SetLevel(level int) {
+func (self *TLogger) SetLevel(level Level) {
 	self.manager.config.Level = level
 }
 

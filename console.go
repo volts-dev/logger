@@ -63,7 +63,7 @@ func (self *ConsoleWriter) Init(config string) error {
 }
 
 // write message in console.
-func (self *ConsoleWriter) Write(level int, msg string) error {
+func (self *ConsoleWriter) Write(level Level, msg string) error {
 	if goos := runtime.GOOS; goos == "windows" {
 		self.log.Println(msg)
 	} else {
