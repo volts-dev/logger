@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -13,11 +12,6 @@ import (
 )
 
 type (
-	TConfig struct {
-		Level  Level  `json:"Level"`
-		Prefix string `json:"Prefix"`
-	}
-
 	IWriter interface {
 		Init(config string) error
 		Destroy()
@@ -85,7 +79,7 @@ type (
 
 var (
 	creators = make(map[string]IWriterType) // 注册的Writer类型函数接口
-	Logger   = NewLogger("")
+	Logger   = NewLogger()
 )
 
 // 断言如果结果和条件不一致就错误
@@ -242,52 +236,42 @@ func (self *TWriterManager) listen() {
 	}
 }
 
-func NewLogger(config string) *TLogger {
-	lConfig := new(TConfig)
-	lConfig.Level = LevelDebug
-	lConfig.Prefix = "LOG"
-
-	if config != "" { // 空字符串会导致错误
-		err := json.Unmarshal([]byte(config), lConfig)
-		if err != nil {
-			fmt.Println("NewMemorySession Unmarshal", err, lConfig)
-			return nil
+func NewLogger(opts ...Option) *TLogger {
+	config := &TConfig{
+		Level:  LevelDebug,
+		Prefix: "LOG",
+	}
+	// init options
+	for _, opt := range opts {
+		if opt != nil {
+			opt(config)
 		}
 	}
-	lLogger := &TLogger{}
-	lLogger.manager = &TWriterManager{
+
+	log := &TLogger{}
+	log.manager = &TWriterManager{
 		writer:              make(map[string]IWriter),
 		level_writer:        make(map[Level]IWriter),
-		config:              lConfig,
+		config:              config,
 		msg:                 make(chan *TWriterMsg, 10000), //10000 means the number of messages in chan.
 		loggerFuncCallDepth: 2,
 	}
 
-	//go lLogger.manager.listen()
+	//go log.manager.listen()
 
-	lLogger.manager.writer["Console"] = NewConsoleWriter()
-	lLogger.manager.writerName = "Console"
+	log.manager.writer["Console"] = NewConsoleWriter()
+	log.manager.writerName = "Console"
 
 	// 缓存池新建对象函数
-	lLogger.manager.msgPool = &sync.Pool{
+	log.manager.msgPool = &sync.Pool{
 		New: func() interface{} {
 			return &TWriterMsg{}
 		},
 	}
 
-	return lLogger
+	return log
 }
 
-/*
-func (self *TLogger) Request(hd *web.THandler) {
-
-}
-
-
-func (self *TLogger) Response(hd *web.THandler) {
-
-}
-*/
 // SetLogger provides a given logger creater into Logger with config string.
 // config need to be correct JSON as string: {"interval":360}.
 func (self *TLogger) SetWriter(name string, config string) error {

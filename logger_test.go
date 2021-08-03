@@ -6,7 +6,7 @@ import (
 )
 
 func TestLogger(t *testing.T) {
-	log := NewLogger("")
+	log := NewLogger(WithPrefix("fff"))
 	fmt.Println("Strart")
 
 	log.SetLevel(LevelDebug)
